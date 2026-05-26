@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)file:///C:/Users/user/Downloads/etf_dashboard_8.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF Dashboard</title>
+<script src="./ETF Dashboard_files/chart.umd.js.다운로드"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f5f4f0;--card:#fff;--bd:rgba(0,0,0,0.09);--tx:#1a1a1a;--t2:#666;--t3:#999;--acc:#1e40af;--mono:'SF Mono','Courier New',monospace}
+body{font-family:-apple-system,'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:28px 22px}
+.wrap{max-width:1000px;margin:0 auto}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+.hdr h1{font-size:20px;font-weight:600}.hdr p{font-size:12px;color:var(--t2);font-family:var(--mono);margin-top:3px}
+.hdr-r{display:flex;align-items:center;gap:8px}
+button{padding:7px 13px;border:1px solid var(--bd);border-radius:7px;background:var(--card);color:var(--tx);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .15s}
+button:hover{background:#eeecea}button:disabled{opacity:.4;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-family:var(--mono)}
+.b-live{background:#dcfce7;color:#16a34a}.b-cache{background:#eff6ff;color:#2563eb}.b-load{background:#fef9c3;color:#ca8a04}.b-err{background:#fee2e2;color:#dc2626}
+.info-bar{display:flex;justify-content:space-between;padding:8px 13px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;font-size:12px;color:var(--acc);margin-bottom:10px}
+.upd-bar{display:flex;justify-content:space-between;padding:8px 13px;background:#f3f4f6;border-radius:7px;font-size:11px;color:var(--t2);font-family:var(--mono);margin-bottom:14px}
+.summary-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+.scard{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:10px 12px;border-top:3px solid #ddd}
+.scard-name{font-size:11px;font-weight:600;color:var(--t2);font-family:var(--mono);margin-bottom:3px}
+.scard-6m{font-size:18px;font-weight:700;font-family:var(--mono)}
+.scard-rows{margin-top:4px;display:flex;flex-direction:column;gap:1px}
+.scard-row{font-size:10px;color:var(--t3);display:flex;justify-content:space-between}
+.scard-row span:last-child{font-weight:600}
+.ch-card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px 20px;margin-bottom:14px}
+.ch-title{font-size:12px;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ch-badge{padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700}
+.main-badge{background:var(--acc);color:#fff}.ref-badge{background:#f3f4f6;color:var(--t2)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--t2);margin-top:10px}
+.tbl-wrap{background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{padding:8px 10px;font-size:10px;color:var(--t3);font-weight:500;background:#fafaf8;border-bottom:1px solid var(--bd);text-align:left}
+th.r{text-align:right}th.key{color:var(--acc);font-weight:700;font-size:11px}
+td{padding:9px 10px;font-size:12px;border-bottom:1px solid #f0f0ec}
+td.r{text-align:right;font-family:var(--mono);font-size:12px;font-weight:600}
+td.key{background:#eff6ff}
+tr:last-child td{border-bottom:none}tr:hover td{background:#fafaf8}tr:hover td.key{background:#dbeafe}
+.rk{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:10px;font-family:var(--mono);font-weight:700;background:#f0f0ec;color:var(--t2)}
+.r1{background:#fef3c7;color:#92400e}.r2{background:#f3f4f6;color:#4b5563}.r3{background:#fde8d8;color:#7c2d12}
+#loadBox{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:50px 20px;text-align:center;color:var(--t2)}
+#loadStep{font-size:11px;color:#9ca3af;margin-top:8px;font-family:var(--mono);min-height:16px}
+.spin{width:28px;height:28px;border:2.5px solid #e5e7eb;border-top-color:var(--acc);border-radius:50%;animation:rot .8s linear infinite;margin:0 auto 12px}
+@keyframes rot{to{transform:rotate(360deg)}}
+footer{font-size:10px;color:var(--t3);text-align:center;line-height:1.8;padding-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div><h1>ETF Performance Dashboard</h1><p id="period">USD basis · 6M: 2025-11-24 ~ 2026-05-26</p></div>
+    <div class="hdr-r">
+      <span class="badge b-cache" id="badge">● Cached</span>
+      <button id="refreshBtn" onclick="forceRefresh()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="info-bar">
+    <span>📊 QQQ · EWY · GLD · IEF · TLT · SOXX &nbsp;|&nbsp; USD &nbsp;|&nbsp; Yahoo Finance</span>
+    <span style="color:var(--t2)">매주 일요일 자동 업데이트</span>
+  </div>
+  <div class="upd-bar" id="updBar" style="display: flex;"><span id="nextTxt">Next: 2026.05.31 (Sun)</span><span id="lastTxt">Updated: 2026. 05. 27. 오전 01:25</span></div>
+  <div id="loadBox" style="display: none;"><div class="spin"></div><div style="font-size:13px" id="loadTitle">연결 테스트 중...</div><div id="loadStep" style="font-size:11px;color:#9ca3af;margin-top:8px;font-family:var(--mono)"></div></div>
+  <div id="dash" style="display: block;">
+    <div class="summary-row" id="summaryRow">
+    <div class="scard" style="border-top-color:#2563eb">
+      <div class="scard-name">QQQ</div>
+      <div class="scard-6m" style="color:#16a34a">+17.5%</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:#16a34a">+19.8%</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:#16a34a">+27.5%</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:#16a34a">+37.3%</span></div>
+      </div>
+    </div>
+    <div class="scard" style="border-top-color:#16a34a">
+      <div class="scard-name">EWY</div>
+      <div class="scard-6m" style="color:#16a34a">+118.3%</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:#16a34a">+31.1%</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:#16a34a">+174.6%</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:#16a34a">+202.6%</span></div>
+      </div>
+    </div>
+    <div class="scard" style="border-top-color:#d97706">
+      <div class="scard-name">GLD</div>
+      <div class="scard-6m" style="color:#16a34a">+6.6%</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:#dc2626">-14.5%</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:#16a34a">+30.0%</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:#16a34a">+35.5%</span></div>
+      </div>
+    </div>
+    <div class="scard" style="border-top-color:#7c3aed">
+      <div class="scard-name">IEF</div>
+      <div class="scard-6m" style="color:#dc2626">-3.4%</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:#dc2626">-3.9%</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:#dc2626">-2.0%</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:#16a34a">+0.7%</span></div>
+      </div>
+    </div>
+    <div class="scard" style="border-top-color:#dc2626">
+      <div class="scard-name">TLT</div>
+      <div class="scard-6m" style="color:#dc2626">-5.8%</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:#dc2626">-6.4%</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:#dc2626">-1.9%</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:#dc2626">-0.4%</span></div>
+      </div>
+    </div>
+    <div class="scard" style="border-top-color:#0891b2">
+      <div class="scard-name">SOXX</div>
+      <div class="scard-6m" style="color:#16a34a">+90.2%</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:#16a34a">+60.2%</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:#16a34a">+130.1%</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:#16a34a">+159.7%</span></div>
+      </div>
+    </div></div>
+    <div class="ch-card">
+      <div class="ch-title">
+        <span class="ch-badge main-badge">MAIN</span>
+        3M · <strong>6M★</strong> · 9M · 12M Return Comparison
+        <span style="color:var(--t3);font-size:11px" id="mainPeriod">기준일: 2026-05-26</span>
+        <div style="margin-left:auto;display:flex;gap:10px;font-size:11px;color:var(--t2)">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#aaa;opacity:.4;margin-right:3px;vertical-align:middle"></span>3M</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#333;margin-right:3px;vertical-align:middle;outline:2px solid #333;outline-offset:-2px"></span>6M★</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#aaa;opacity:.65;margin-right:3px;vertical-align:middle"></span>9M</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#aaa;opacity:.5;margin-right:3px;vertical-align:middle"></span>12M</span>
+        </div>
+      </div>
+      <div style="position:relative;height:280px">
+        <canvas id="chartMain" role="img" aria-label="3M 6M 9M 12M 수익률 비교 그룹 막대 차트" height="350" style="display: block; box-sizing: border-box; height: 280px; width: 958px;" width="1198"></canvas>
+      </div>
+    </div>
+    <div class="ch-card">
+      <div class="ch-title">
+        <span class="ch-badge ref-badge">TREND</span>
+        12-Week Relative Performance
+        <span style="color:var(--t3);font-size:11px">12주 전 = 100 기준 지수화</span>
+      </div>
+      <div style="position:relative;height:240px">
+        <canvas id="chartTrend" role="img" aria-label="12주 트렌드 라인 차트" height="300" style="display: block; box-sizing: border-box; height: 240px; width: 958px;" width="1198"></canvas>
+      </div>
+      <div class="legend" id="legend"><span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:#2563eb;margin-right:4px;vertical-align:middle"></span>QQQ</span><span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:#16a34a;margin-right:4px;vertical-align:middle"></span>EWY</span><span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:#d97706;margin-right:4px;vertical-align:middle"></span>GLD</span><span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:#7c3aed;margin-right:4px;vertical-align:middle"></span>IEF</span><span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:#dc2626;margin-right:4px;vertical-align:middle"></span>TLT</span><span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:#0891b2;margin-right:4px;vertical-align:middle"></span>SOXX</span></div>
+    </div>
+    <div class="tbl-wrap"><table id="tbl">
+    <thead><tr>
+      <th style="width:32px">#</th>
+      <th style="width:58px">Ticker</th>
+      <th>Name</th>
+      <th class="r key" style="width:80px">6M ★</th>
+      <th class="r" style="width:72px">3M</th>
+      <th class="r" style="width:72px">9M</th>
+      <th class="r" style="width:72px">12M</th>
+      <th class="r" style="width:82px">Current</th>
+      <th class="r" style="width:82px">6M Ago</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="rk r1">1</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">EWY</td>
+        <td style="font-size:11px;color:var(--t2)">Korea (MSCI)</td>
+        <td class="r key" style="color:#16a34a">+118.3%</td>
+        <td class="r" style="color:#16a34a">+31.1%</td>
+        <td class="r" style="color:#16a34a">+174.6%</td>
+        <td class="r" style="color:#16a34a">+202.6%</td>
+        <td class="r" style="color:var(--t2)">$198.38</td>
+        <td class="r" style="color:var(--t2)">$90.87</td>
+      </tr>
+      <tr>
+        <td><span class="rk r2">2</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">SOXX</td>
+        <td style="font-size:11px;color:var(--t2)">Semiconductor</td>
+        <td class="r key" style="color:#16a34a">+90.2%</td>
+        <td class="r" style="color:#16a34a">+60.2%</td>
+        <td class="r" style="color:#16a34a">+130.1%</td>
+        <td class="r" style="color:#16a34a">+159.7%</td>
+        <td class="r" style="color:var(--t2)">$564.41</td>
+        <td class="r" style="color:var(--t2)">$296.74</td>
+      </tr>
+      <tr>
+        <td><span class="rk r3">3</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">QQQ</td>
+        <td style="font-size:11px;color:var(--t2)">Nasdaq 100</td>
+        <td class="r key" style="color:#16a34a">+17.5%</td>
+        <td class="r" style="color:#16a34a">+19.8%</td>
+        <td class="r" style="color:#16a34a">+27.5%</td>
+        <td class="r" style="color:#16a34a">+37.3%</td>
+        <td class="r" style="color:var(--t2)">$727.35</td>
+        <td class="r" style="color:var(--t2)">$619.25</td>
+      </tr>
+      <tr>
+        <td><span class="rk ">4</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">GLD</td>
+        <td style="font-size:11px;color:var(--t2)">Gold</td>
+        <td class="r key" style="color:#16a34a">+6.6%</td>
+        <td class="r" style="color:#dc2626">-14.5%</td>
+        <td class="r" style="color:#16a34a">+30.0%</td>
+        <td class="r" style="color:#16a34a">+35.5%</td>
+        <td class="r" style="color:var(--t2)">$413.60</td>
+        <td class="r" style="color:var(--t2)">$387.88</td>
+      </tr>
+      <tr>
+        <td><span class="rk ">5</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">IEF</td>
+        <td style="font-size:11px;color:var(--t2)">7-10Y Treasury</td>
+        <td class="r key" style="color:#dc2626">-3.4%</td>
+        <td class="r" style="color:#dc2626">-3.9%</td>
+        <td class="r" style="color:#dc2626">-2.0%</td>
+        <td class="r" style="color:#16a34a">+0.7%</td>
+        <td class="r" style="color:var(--t2)">$94.19</td>
+        <td class="r" style="color:var(--t2)">$97.50</td>
+      </tr>
+      <tr>
+        <td><span class="rk ">6</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">TLT</td>
+        <td style="font-size:11px;color:var(--t2)">20Y+ Treasury</td>
+        <td class="r key" style="color:#dc2626">-5.8%</td>
+        <td class="r" style="color:#dc2626">-6.4%</td>
+        <td class="r" style="color:#dc2626">-1.9%</td>
+        <td class="r" style="color:#dc2626">-0.4%</td>
+        <td class="r" style="color:var(--t2)">$84.99</td>
+        <td class="r" style="color:var(--t2)">$90.21</td>
+      </tr>
+    </tbody></table></div>
+  </div>
+  <footer id="foot">Source: Yahoo Finance · USD · 기준일: 2026-05-26 · 12-week trend indexed to 100<br>투자 참고용 — 실제 투자 전 공식 출처를 반드시 확인하시기 바랍니다.</footer>
+</div>
+
+<script>
+const ETF_LIST=[
+  {ticker:'QQQ', name:'Nasdaq 100',      color:'#2563eb'},
+  {ticker:'EWY', name:'Korea (MSCI)',    color:'#16a34a'},
+  {ticker:'GLD', name:'Gold',            color:'#d97706'},
+  {ticker:'IEF', name:'7-10Y Treasury',  color:'#7c3aed'},
+  {ticker:'TLT', name:'20Y+ Treasury',   color:'#dc2626'},
+  {ticker:'SOXX',name:'Semiconductor',   color:'#0891b2'},
+];
+const K={DATA:'etf_v6_data',TS:'etf_v6_ts'};
+const charts={};
+const PROXY_FNS=[
+  u=>u,
+  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u=>`https://corsproxy.io/?${u}`,
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  u=>`https://proxy.cors.sh/${u}`,
+];
+let activeProxy=null;
+
+const fmt  = r=>(r==null||isNaN(r))?'–':(r>=0?'+':'')+parseFloat(r).toFixed(1)+'%';
+const fmtD = d=>`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+const cc   = v=>(v==null||isNaN(v))?'#9ca3af':(v>=0?'#16a34a':'#dc2626');
+const setBadge=(cls,t)=>{const b=document.getElementById('badge');b.className='badge '+cls;b.textContent='● '+t;};
+const setStep=t=>{const el=document.getElementById('loadStep');if(el)el.textContent=t;};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function fetchT(url,ms){
+  const c=new AbortController(),id=setTimeout(()=>c.abort(),ms);
+  return fetch(url,{signal:c.signal}).finally(()=>clearTimeout(id));
+}
+function lastSunday(){const d=new Date();d.setDate(d.getDate()-d.getDay());d.setHours(0,0,0,0);return d;}
+function nextSunday(){const d=new Date();const n=d.getDay();d.setDate(d.getDate()+(n===0?7:7-n));d.setHours(0,0,0,0);return d;}
+function needsUpdate(){const ts=localStorage.getItem(K.TS);return!ts||new Date(ts)<lastSunday();}
+function showUpdBar(){
+  const ts=localStorage.getItem(K.TS);if(!ts)return;
+  document.getElementById('updBar').style.display='flex';
+  document.getElementById('nextTxt').textContent='Next: '+fmtD(nextSunday())+' (Sun)';
+  document.getElementById('lastTxt').textContent='Updated: '+new Date(ts).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+async function detectProxy(){
+  const test='https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=5d&interval=1d';
+  for(let i=0;i<PROXY_FNS.length;i++){
+    setStep(`프록시 테스트 ${i+1}/${PROXY_FNS.length}...`);
+    try{
+      const r=await fetchT(PROXY_FNS[i](test),7000);
+      if(!r.ok)continue;
+      const d=await r.json();
+      if(d?.chart?.result?.[0]){activeProxy=PROXY_FNS[i];console.log(`✓ Proxy #${i+1}`);return true;}
+    }catch(e){console.log(`✗ P#${i+1}:`,e.message);}
+  }
+  return false;
+}
+
+// 1년치 주봉 데이터로 3M/6M/9M/12M 동시 계산
+async function fetchETF(etf){
+  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${etf.ticker}?range=1y&interval=1wk`;
+  const r=await fetchT(activeProxy(url),12000);
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const data=await r.json();
+  const result=data?.chart?.result?.[0];
+  if(!result)throw new Error('No result');
+
+  const ts=result.timestamp,cl=result.indicators.quote[0].close;
+  const pts=ts.map((t,i)=>({
+    ms:t*1000,c:cl[i],
+    dateStr:new Date(t*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+  })).filter(p=>p.c!=null&&p.c>0&&!isNaN(p.c));
+
+  if(pts.length<10)throw new Error(`Too few points: ${pts.length}`);
+
+  const cur=pts[pts.length-1].c;
+  const n=pts.length;
+
+  // 각 기간 인덱스: 주봉 기준 (4.33주/월)
+  const retAt=wk=>{
+    const idx=Math.max(0,n-1-Math.round(wk));
+    return parseFloat(((cur-pts[idx].c)/pts[idx].c*100).toFixed(2));
+  };
+  const ret3m =retAt(13);
+  const ret6m =retAt(26);
+  const ret9m =retAt(39);
+  const ret12m=retAt(Math.min(51,n-1));
+
+  // 12주 트렌드
+  const trendPts=pts.length>=13?pts.slice(-13):pts;
+  const base=trendPts[0].c;
+  const trend=trendPts.map(p=>({date:p.dateStr,idx:parseFloat((p.c/base*100).toFixed(2))}));
+
+  return{ticker:etf.ticker,name:etf.name,color:etf.color,
+         cur:parseFloat(cur.toFixed(2)),prev6m:parseFloat(pts[Math.max(0,n-27)].c.toFixed(2)),
+         ret3m,ret6m,ret9m,ret12m,trend};
+}
+
+async function fetchWithRetry(etf){
+  try{ return await fetchETF(etf); }
+  catch(e){
+    await sleep(300);
+    console.warn(`Retry ${etf.ticker}...`);
+    return await fetchETF(etf); // 1회 재시도
+  }
+}
+
+async function fetchAllData(){
+  document.getElementById('loadTitle').textContent='연결 테스트 중...';
+  if(!activeProxy){
+    const ok=await detectProxy();
+    if(!ok)throw new Error('CORS 프록시 연결 실패 — 인터넷 연결 확인 후 Refresh');
+  }
+
+  document.getElementById('loadTitle').textContent='ETF 데이터 수집 중...';
+  // 200ms 간격으로 순차 fetch (rate limit 방지)
+  const etfs=[];
+  for(let i=0;i<ETF_LIST.length;i++){
+    const etf=ETF_LIST[i];
+    setStep(`${etf.ticker} 수집 중... (${i+1}/${ETF_LIST.length})`);
+    try{
+      etfs.push(await fetchWithRetry(etf));
+      console.log(`✓ ${etf.ticker}`);
+    }catch(e){
+      console.error(`✗ ${etf.ticker}:`,e.message);
+      etfs.push({...etf,cur:null,prev6m:null,ret3m:null,ret6m:null,ret9m:null,ret12m:null,
+                 trend:Array(13).fill({date:'',idx:100}),error:true});
+    }
+    if(i<ETF_LIST.length-1)await sleep(200);
+  }
+
+  if(etfs.every(e=>e.error))throw new Error('모든 ETF 수집 실패 — Refresh 재시도');
+
+  const today=new Date().toISOString().split('T')[0];
+  const twelveAgo=new Date(Date.now()-365*86400*1000).toISOString().split('T')[0];
+  return{date:today,start12m:twelveAgo,etfs,partial:etfs.some(e=>e.error)};
+}
+
+function render(d){
+  // 6M 기준 내림차순 정렬
+  const sorted=[...d.etfs].sort((a,b)=>{
+    if(a.ret6m==null)return 1;if(b.ret6m==null)return-1;return b.ret6m-a.ret6m;
+  });
+  const sixAgo=new Date(Date.now()-183*86400*1000).toISOString().split('T')[0];
+  document.getElementById('period').textContent=`USD basis · 6M: ${sixAgo} ~ ${d.date}`;
+  document.getElementById('mainPeriod').textContent=`기준일: ${d.date}`;
+
+  // Summary cards
+  document.getElementById('summaryRow').innerHTML=d.etfs.map(e=>`
+    <div class="scard" style="border-top-color:${e.color}">
+      <div class="scard-name">${e.ticker}</div>
+      <div class="scard-6m" style="color:${cc(e.ret6m)}">${fmt(e.ret6m)}</div>
+      <div class="scard-rows">
+        <div class="scard-row"><span>3M</span><span style="color:${cc(e.ret3m)}">${fmt(e.ret3m)}</span></div>
+        <div class="scard-row"><span>9M</span><span style="color:${cc(e.ret9m)}">${fmt(e.ret9m)}</span></div>
+        <div class="scard-row"><span>12M</span><span style="color:${cc(e.ret12m)}">${fmt(e.ret12m)}</span></div>
+      </div>
+    </div>`).join('');
+
+  // ── MAIN: 4-bar grouped chart ──
+  // 6M 정렬 순서 기준
+  const barLabels=sorted.map(e=>e.ticker);
+  const clr=sorted.map(e=>e.color);
+
+  // 투명도: 3M 연→6M 진(KEY)→9M 중→12M 중하
+  const mk=(arr,alpha)=>arr.map((c,i)=>c+alpha);
+
+  if(charts.main)charts.main.destroy();
+  charts.main=new Chart(document.getElementById('chartMain'),{
+    type:'bar',
+    data:{
+      labels:barLabels,
+      datasets:[
+        {label:'3M',  data:sorted.map(e=>e.ret3m !=null?parseFloat(e.ret3m .toFixed(1)):null),
+         backgroundColor:clr.map(c=>c+'44'),borderColor:clr.map(c=>c+'88'),borderWidth:1,borderRadius:3,borderSkipped:false},
+        {label:'6M ★',data:sorted.map(e=>e.ret6m !=null?parseFloat(e.ret6m .toFixed(1)):null),
+         backgroundColor:clr.map(c=>c+'dd'),borderColor:clr,borderWidth:2,borderRadius:4,borderSkipped:false},
+        {label:'9M',  data:sorted.map(e=>e.ret9m !=null?parseFloat(e.ret9m .toFixed(1)):null),
+         backgroundColor:clr.map(c=>c+'88'),borderColor:clr.map(c=>c+'bb'),borderWidth:1,borderRadius:3,borderSkipped:false},
+        {label:'12M', data:sorted.map(e=>e.ret12m!=null?parseFloat(e.ret12m.toFixed(1)):null),
+         backgroundColor:clr.map(c=>c+'55'),borderColor:clr.map(c=>c+'99'),borderWidth:1,borderRadius:3,borderSkipped:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:12},color:'#374151'}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11},callback:v=>v+'%'}}
+      }
+    }
+  });
+
+  // TREND line
+  const validEtf=d.etfs.find(e=>!e.error&&e.trend?.[0]?.date);
+  const xLabels=validEtf?validEtf.trend.map(p=>p.date):[];
+  if(charts.trend)charts.trend.destroy();
+  charts.trend=new Chart(document.getElementById('chartTrend'),{
+    type:'line',
+    data:{
+      labels:xLabels,
+      datasets:d.etfs.filter(e=>!e.error).map(e=>({
+        label:e.ticker,data:e.trend.map(p=>p.idx),
+        borderColor:e.color,backgroundColor:e.color+'18',
+        borderWidth:2.5,pointRadius:3,pointHoverRadius:5,tension:0.3,fill:false
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.raw!=null?c.raw.toFixed(1):'–'}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10},maxRotation:30,autoSkip:true,maxTicksLimit:8}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11},callback:v=>v.toFixed(0)},
+           title:{display:true,text:'Index (start=100)',font:{size:10},color:'#9ca3af'}}
+      }
+    }
+  });
+
+  document.getElementById('legend').innerHTML=d.etfs.filter(e=>!e.error).map(e=>
+    `<span><span style="display:inline-block;width:22px;height:3px;border-radius:2px;background:${e.color};margin-right:4px;vertical-align:middle"></span>${e.ticker}</span>`
+  ).join('');
+
+  // Table (6M 정렬)
+  const rkCls=['r1','r2','r3','','','',''];
+  document.getElementById('tbl').innerHTML=`
+    <thead><tr>
+      <th style="width:32px">#</th>
+      <th style="width:58px">Ticker</th>
+      <th>Name</th>
+      <th class="r key" style="width:80px">6M ★</th>
+      <th class="r" style="width:72px">3M</th>
+      <th class="r" style="width:72px">9M</th>
+      <th class="r" style="width:72px">12M</th>
+      <th class="r" style="width:82px">Current</th>
+      <th class="r" style="width:82px">6M Ago</th>
+    </tr></thead>
+    <tbody>${sorted.map((e,i)=>`
+      <tr>
+        <td><span class="rk ${rkCls[i]}">${i+1}</span></td>
+        <td style="font-weight:600;font-family:var(--mono)">${e.ticker}</td>
+        <td style="font-size:11px;color:var(--t2)">${e.name}</td>
+        <td class="r key" style="color:${cc(e.ret6m)}">${fmt(e.ret6m)}</td>
+        <td class="r" style="color:${cc(e.ret3m)}">${fmt(e.ret3m)}</td>
+        <td class="r" style="color:${cc(e.ret9m)}">${fmt(e.ret9m)}</td>
+        <td class="r" style="color:${cc(e.ret12m)}">${fmt(e.ret12m)}</td>
+        <td class="r" style="color:var(--t2)">${e.cur!=null?'$'+e.cur.toFixed(2):'–'}</td>
+        <td class="r" style="color:var(--t2)">${e.prev6m!=null?'$'+e.prev6m.toFixed(2):'–'}</td>
+      </tr>`).join('')}
+    </tbody>`;
+
+  document.getElementById('foot').innerHTML=
+    `Source: Yahoo Finance · USD · 기준일: ${d.date} · 12-week trend indexed to 100<br>투자 참고용 — 실제 투자 전 공식 출처를 반드시 확인하시기 바랍니다.`;
+  document.getElementById('loadBox').style.display='none';
+  document.getElementById('dash').style.display='block';
+}
+
+async function run(force=false){
+  document.getElementById('refreshBtn').disabled=true;
+  setBadge('b-load','Loading...');
+  document.getElementById('dash').style.display='none';
+  document.getElementById('loadBox').style.display='block';
+  document.getElementById('loadBox').innerHTML=
+    `<div class="spin"></div><div style="font-size:13px" id="loadTitle">연결 테스트 중...</div><div id="loadStep" style="font-size:11px;color:#9ca3af;margin-top:8px;font-family:var(--mono)"></div>`;
+  document.getElementById('updBar').style.display='none';
+  if(!force){
+    const cached=localStorage.getItem(K.DATA);
+    if(cached&&!needsUpdate()){
+      render(JSON.parse(cached));setBadge('b-cache','Cached');showUpdBar();
+      document.getElementById('refreshBtn').disabled=false;return;
+    }
+  }
+  try{
+    const data=await fetchAllData();
+    localStorage.setItem(K.DATA,JSON.stringify(data));
+    localStorage.setItem(K.TS,new Date().toISOString());
+    render(data);
+    setBadge(data.partial?'b-cache':'b-live',data.partial?'Partial':'Live');
+    showUpdBar();
+  }catch(e){
+    const cached=localStorage.getItem(K.DATA);
+    if(cached&&!force){render(JSON.parse(cached));setBadge('b-cache','Cached (old)');showUpdBar();}
+    else{
+      document.getElementById('loadBox').innerHTML=
+        `<div style="font-size:22px;color:#dc2626;margin-bottom:8px">⚠</div>
+         <div style="color:#dc2626;margin-bottom:8px;font-size:13px;white-space:pre-line">${e.message}</div>
+         <button onclick="forceRefresh()" style="margin-top:8px">↻ 다시 시도</button>`;
+      setBadge('b-err','Error');
+    }
+  }
+  document.getElementById('refreshBtn').disabled=false;
+}
+function forceRefresh(){activeProxy=null;run(true);}
+document.addEventListener('DOMContentLoaded',()=>run(false));
+</script>
+
+
+</body></html>
