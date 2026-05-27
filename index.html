@@ -99,7 +99,7 @@ function render(d){
   document.getElementById('updBar').style.display='flex';
   document.getElementById('nextTxt').textContent='Next: '+fmtD(nextSunday())+' (GitHub Actions)';
   document.getElementById('lastTxt').textContent='Data: '+d.date;
-  document.getElementById('summaryRow').innerHTML=d.etfs.map(e=>`
+  document.getElementById('summaryRow').innerHTML=sorted.map(e=>`
     <div class="scard" style="border-top-color:${e.color}">
       <div class="scard-name">${e.ticker}</div>
       <div class="scard-6m" style="color:${cc(e.ret6m)}">${fmt(e.ret6m)}</div>
